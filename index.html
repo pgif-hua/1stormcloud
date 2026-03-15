@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormCloud-Main</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+     
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+      
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('字体.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        @font-face {
+            font-family: 'ModernFont';
+            src: url('modern-font.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        @font-face {
+            font-family: 'ClassicFont';
+            src: url('classic-font.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+
+        body, * {
+            font-family: 'CustomFont', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+    
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+        
+   
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #0a0f1e, #1e293b);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeOut 1.5s ease-out 3.5s forwards;
+        }
+        
+        .intro-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 50%, #0097e6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            opacity: 0;
+            animation: zoomIn 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.5s forwards;
+        }
+        
+        .intro-subtitle {
+            font-size: 1.5rem;
+            color: #a0c8ff;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.2s forwards;
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 40px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out 1.8s forwards;
+        }
+        
+        .loading-progress {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #0066ff, #00a8ff);
+            border-radius: 2px;
+            animation: loading 2.5s ease-in-out 1.8s forwards;
+        }
+        
+     
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        @keyframes loading {
+            to { width: 100%; }
+        }
+        
+     
+        .slide-from-left {
+            opacity: 0;
+            transform: translateX(-100px);
+            animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .slide-from-right {
+            opacity: 0;
+            transform: translateX(100px);
+            animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+            animation: scaleIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .float-up {
+            opacity: 0;
+            transform: translateY(50px);
+            animation: floatUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes floatUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+   
+        #effect-canvas, #mouse-canvas, #click-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+   
+        .mouse-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+        
+     
+        .container {
+            position: relative;
+            z-index: 4;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+  
+        .gradient-blue-text {
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 50%, #0097e6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+  
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 168, 255, 0.3);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);
+        }
+        
+        .logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 168, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3);
+        }
+        
+  
+        .hero-section {
+            text-align: center;
+            padding: 60px 0;
+            margin-bottom: 60px;
+        }
+        
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 50%, #0097e6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0c8ff;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+        
+    
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(0, 168, 255, 0.1);
+            color: #00a8ff;
+            border: 1px solid rgba(0, 168, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 168, 255, 0.2);
+        }
+        
+    
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .info-card {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #0066ff, #00a8ff, #0097e6);
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .refresh-btn {
+            background: rgba(0, 168, 255, 0.1);
+            color: #00a8ff;
+            border: 1px solid rgba(0, 168, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(0, 168, 255, 0.2);
+        }
+        
+        .announcement-content {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 168, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 120px;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #a0c8ff;
+        }
+        
+        .messages-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .message-item {
+            background: rgba(0, 168, 255, 0.05);
+            border-left: 4px solid #0066ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .message-item:hover {
+            transform: translateX(5px);
+            background: rgba(0, 168, 255, 0.1);
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            color: #a0c8ff;
+        }
+        
+        .message-content {
+            color: #a0c8ff;
+            line-height: 1.5;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a0c8ff;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        .features-section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #a0c8ff;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 1.6;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 168, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.2);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .feature-desc {
+            color: #a0c8ff;
+            line-height: 1.6;
+        }
+        
+ 
+        .controls-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00a8ff;
+            border: 2px solid #00a8ff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: #00a8ff;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.active {
+            background: #00a8ff;
+            color: white;
+        }
+        
+
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00a8ff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-dot {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #00a8ff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(0, 168, 255, 0.3);
+            color: #a0c8ff;
+        }
+        
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #0066ff 0%, #00a8ff 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+        
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 168, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00a8ff;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls-panel {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="intro-overlay" id="introOverlay">
+        <h1 class="intro-title">StormCloud</h1>
+        <p class="intro-subtitle">体验科技的乐趣</p>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+    
+
+    <div class="overlay"></div>
+
+    <canvas id="effect-canvas"></canvas>
+    <canvas id="mouse-canvas"></canvas>
+    <canvas id="click-canvas"></canvas>
+    
+
+    <div class="alert" id="alert"></div>
+    
+
+    <div class="custom-cursor" id="customCursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+   
+    <div class="container">
+      
+        <nav class="navbar">
+            <div class="logo slide-from-left">
+                <div class="logo-text">StormCloud</div>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link slide-from-left" style="animation-delay: 0.1s">首页</a>
+                <a href="#features" class="nav-link slide-from-left" style="animation-delay: 0.2s">功能介绍</a>
+                <a href="#announcement" class="nav-link slide-from-left" style="animation-delay: 0.3s">公告</a>
+                <a href="#messages" class="nav-link slide-from-left" style="animation-delay: 0.4s">消息</a>
+                <a href="#download" class="nav-link slide-from-left" style="animation-delay: 0.5s">下载</a>
+                <a href="luntan.html" class="nav-link">论坛(制作中....)</a>
+            </div>
+            <a href="#download" class="download-btn slide-from-right">立即下载</a>
+        </nav>
+        
+ 
+        <section class="hero-section float-up" id="home" style="animation-delay: 0.6s">
+            <h1 class="main-title">体验科技的乐趣</h1>
+            <p class="subtitle">StormCloud 为您提供最强大的迷你世界独家功能</p>
+            
+            <div class="hero-actions">
+                <a href="#download" class="btn btn-primary float-up" style="animation-delay: 0.7s">下载安装包</a>
+                <a href="#features" class="btn btn-secondary float-up" style="animation-delay: 0.8s">了解更多</a>
+            </div>
+        </section>
+        
+   
+        <div class="info-section">
+
+            <div class="info-card slide-from-left" id="announcement" style="animation-delay: 0.9s">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        最新公告
+                    </h2>
+                    <button class="refresh-btn" onclick="loadAnnouncement()">
+                        <i class="fas fa-sync-alt"></i>
+                        刷新
+                    </button>
+                </div>
+                <div class="announcement-content" id="announcementContent">
+                    正在加载公告...
+                </div>
+            </div>
+ 
+            <div class="info-card slide-from-right" id="messages" style="animation-delay: 1.0s">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        消息通知
+                    </h2>
+                    <button class="refresh-btn" onclick="loadMessages()">
+                        <i class="fas fa-sync-alt"></i>
+                        刷新
+                    </button>
+                </div>
+                <div class="messages-list" id="messagesList">
+                    <div class="empty-state">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>暂无消息</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="features-section" id="features">
+            <h2 class="section-title scale-in" style="animation-delay: 1.1s">功能介绍</h2>
+            <p class="section-subtitle scale-in" style="animation-delay: 1.2s">部分功能介绍</p>
+            
+            <div class="features-grid">
+                <div class="feature-card scale-in" id="feature1" style="animation-delay: 1.3s">
+                    <div class="">
+                        <i class=""></i>
+                    </div>
+                    <h3 class="feature-title">战斗功能</h3>
+                    <p class="feature-desc">自瞄 杀戮 传送杀戮 无后座 改伤害 超级无敌 等等</p>
+                </div>
+                
+                <div class="feature-card scale-in" id="feature2" style="animation-delay: 1.4s">
+                    <div class="">
+                        <i class=""></i>
+                    </div>
+                    <h3 class="feature-title">云服功能</h3>
+                    <p class="feature-desc">云服全员升天 云服禁止人开枪 云服踢人 云服取物 刷物等等</p>
+                </div>
+                
+                <div class="feature-card scale-in" id="feature3" style="animation-delay: 1.5s">
+                    <div class="">
+                        <i class=""></i>
+                    </div>
+                    <h3 class="feature-title">联机功能</h3>
+                    <p class="feature-desc">联机取物 等等</p>
+                </div>
+            </div>
+        </section>
+        
+
+        <section id="download" style="text-align: center; margin-bottom: 60px;">
+            <h2 class="section-title float-up" style="animation-delay: 1.6s">立即下载 StormCloud</h2>
+            <p class="section-subtitle float-up" style="animation-delay: 1.7s">感受科技的乐趣！</p>
+            
+            <div style="margin-top: 30px;">
+                <a href="#" class="btn btn-primary float-up" style="padding: 15px 40px; font-size: 18px; animation-delay: 1.8s">
+                    <i class="fab fa-windows"></i>
+                    下载 Windows 版
+                </a>
+            </div>
+        </section>
+        
+    
+    <div class="controls-panel">
+        <div class="control-group">
+            <button class="control-btn" onclick="changeFont('CustomFont')">字体1</button>
+            <button class="control-btn" onclick="changeFont('ModernFont')">字体2</button>
+            <button class="control-btn" onclick="changeFont('ClassicFont')">字体3</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn active" onclick="toggleEffect('snow')">雪花</button>
+            <button class="control-btn" onclick="toggleEffect('rain')">下雨</button>
+            <button class="control-btn" onclick="toggleEffect('stars')">星光</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn active" onclick="toggleMouseEffect('trail')">轨迹</button>
+            <button class="control-btn active" onclick="toggleMouseEffect('particles')">粒子</button>
+            <button class="control-btn active" onclick="toggleMouseEffect('click')">点击</button>
+        </div>
+    </div>
+    
+    <script>
+
+        const CONFIG = {
+            api: {
+                baseUrl: 'http://154.201.64.138:5000',
+                endpoints: {
+                    announcement: '/api/announcement',
+                    messages: '/api/messages',
+                    status: '/api/status'
+                }
+            },
+            effects: {
+                snow: true,
+                rain: false,
+                stars: true
+            },
+            mouseEffects: {
+                trail: true,
+                particles: true,
+                click: true
+            }
+        };
+
+        let currentFont = 'CustomFont';
+
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        function decodeUnicode(str) {
+            if (typeof str !== 'string') return str;
+            return str.replace(/\\u([\dA-F]{4})/gi, function(match, grp) {
+                return String.fromCharCode(parseInt(grp, 16));
+            });
+        }
+
+        async function loadAnnouncement() {
+            const contentEl = document.getElementById('announcementContent');
+            contentEl.innerHTML = '<div class="loading"></div> 正在加载...';
+            
+            try {
+                const response = await fetch(`${CONFIG.api.baseUrl}${CONFIG.api.endpoints.announcement}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let content = data.data.content;
+                    if (content) {
+                        content = decodeUnicode(content);
+                    }
+                    
+                    if (!content || content.trim() === '') {
+                        contentEl.innerHTML = `
+                            <div style="color: #a0c8ff; font-style: italic; text-align: center; padding: 30px;">
+                                暂无公告
+                            </div>
+                        `;
+                    } else {
+                        contentEl.innerHTML = `
+                            <div style="white-space: pre-wrap; line-height: 1.6; color: #a0c8ff;">
+                                ${content}
+                            </div>
+                        `;
+                    }
+                    
+                    showAlert('公告加载成功', 'success');
+                } else {
+                    contentEl.innerHTML = `<div style="color: #ff6b6b;">加载失败: ${data.error || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                contentEl.innerHTML = '<div style="color: #ff6b6b;">网络连接失败，请检查API地址</div>';
+            }
+        }
+
+        async function loadMessages() {
+            const listEl = document.getElementById('messagesList');
+            listEl.innerHTML = '<div class="loading"></div> 正在加载...';
+            
+            try {
+                const response = await fetch(`${CONFIG.api.baseUrl}${CONFIG.api.endpoints.messages}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.messages && data.data.messages.length > 0) {
+                    const messages = data.data.messages;
+                    let html = '';
+                    
+                    messages.forEach((msg, index) => {
+                        let content = msg.content ? decodeUnicode(msg.content) : '';
+                        let sender = msg.sender ? decodeUnicode(msg.sender) : '匿名';
+                        const time = msg.timestamp || '未知时间';
+                        
+                        html += `
+                            <div class="message-item" style="animation: slideInRight 0.5s ease forwards ${index * 0.1}s; opacity: 0;">
+                                <div class="message-header">
+                                    <div class="message-sender">${sender}</div>
+                                    <div class="message-time">${time}</div>
+                                </div>
+                                <div class="message-content">${content}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    listEl.innerHTML = html;
+                    showAlert(`加载了 ${messages.length} 条消息`, 'success');
+                } else {
+                    listEl.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash"></i>
+                            <p>暂无系统消息</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>消息加载失败</p>
+                    </div>
+                `;
+            }
+        }
+        
+
+        function changeFont(fontName) {
+            currentFont = fontName;
+            
+            document.body.style.fontFamily = `${fontName}, 'Segoe UI', 'Microsoft YaHei', sans-serif`;
+            
+            const fontButtons = document.querySelectorAll('.control-btn');
+            fontButtons.forEach(btn => {
+                if (btn.textContent.includes('字体')) {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            const activeBtn = Array.from(fontButtons).find(btn => 
+                (fontName === 'CustomFont' && btn.textContent.includes('字体1')) ||
+                (fontName === 'ModernFont' && btn.textContent.includes('字体2')) ||
+                (fontName === 'ClassicFont' && btn.textContent.includes('字体3'))
+            );
+            
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            localStorage.setItem('stormcloud-font', fontName);
+        }
+        
+        function toggleEffect(effect) {
+            CONFIG.effects[effect] = !CONFIG.effects[effect];
+            
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes(effect === 'snow' ? '雪花' : 
+                    effect === 'rain' ? '下雨' : '星光')) {
+                    btn.classList.toggle('active', CONFIG.effects[effect]);
+                }
+            });
+        }
+
+        function toggleMouseEffect(effect) {
+            CONFIG.mouseEffects[effect] = !CONFIG.mouseEffects[effect];
+            
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes(effect === 'trail' ? '轨迹' : 
+                    effect === 'particles' ? '粒子' : '点击')) {
+                    btn.classList.toggle('active', CONFIG.mouseEffects[effect]);
+                }
+            });
+        }
+        
+
+        function initCustomCursor() {
+            const cursor = document.getElementById('customCursor');
+            const cursorDot = document.getElementById('cursorDot');
+            
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+            });
+            
+            document.addEventListener('mousedown', () => {
+                cursor.style.transform = 'scale(0.5)';
+                cursorDot.style.transform = 'scale(1.5)';
+            });
+            
+            document.addEventListener('mouseup', () => {
+                cursor.style.transform = 'scale(1)';
+                cursorDot.style.transform = 'scale(1)';
+            });
+            
+            const hoverElements = document.querySelectorAll('a, button, .nav-link, .feature-card, .info-card');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'scale(1.5)';
+                    cursor.style.borderColor = '#00a8ff';
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'scale(1)';
+                    cursor.style.borderColor = '#00a8ff';
+                });
+            });
+        }
+        
+ 
+        function initParticles() {
+            const canvas = document.getElementById('effect-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            
+            class Particle {
+                constructor(type) {
+                    this.type = type;
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    
+                    if (type === 'snow') {
+                        this.size = Math.random() * 3 + 1;
+                        this.speed = Math.random() * 2 + 1;
+                        this.opacity = Math.random() * 0.5 + 0.3;
+                        this.wind = Math.random() * 2 - 1;
+                    } else if (type === 'rain') {
+                        this.length = Math.random() * 20 + 10;
+                        this.speed = Math.random() * 5 + 8;
+                        this.width = Math.random() * 1.5 + 0.5;
+                        this.opacity = Math.random() * 0.5 + 0.3;
+                    } else if (type === 'stars') {
+                        this.size = Math.random() * 2 + 0.5;
+                        this.opacity = Math.random() * 0.5 + 0.2;
+                        this.twinkleSpeed = Math.random() * 0.05;
+                        this.twinkle = 0;
+                    }
+                }
+                
+                update() {
+                    if (this.type === 'snow') {
+                        this.y += this.speed;
+                        this.x += Math.sin(this.y * 0.01) + this.wind * 0.3;
+                        
+                        if (this.y > canvas.height) {
+                            this.y = 0;
+                            this.x = Math.random() * canvas.width;
+                        }
+                    } else if (this.type === 'rain') {
+                        this.y += this.speed;
+                        
+                        if (this.y > canvas.height) {
+                            this.y = 0;
+                            this.x = Math.random() * canvas.width;
+                        }
+                    } else if (this.type === 'stars') {
+                        this.twinkle += this.twinkleSpeed;
+                        this.opacity = 0.2 + Math.abs(Math.sin(this.twinkle)) * 0.3;
+                    }
+                }
+                
+                draw() {
+                    ctx.save();
+                    
+                    if (this.type === 'snow') {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(0, 168, 255, ${this.opacity})`;
+                        ctx.fill();
+                    } else if (this.type === 'rain') {
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(this.x, this.y + this.length);
+                        ctx.strokeStyle = `rgba(0, 168, 255, ${this.opacity})`;
+                        ctx.lineWidth = this.width;
+                        ctx.lineCap = 'round';
+                        ctx.stroke();
+                    } else if (this.type === 'stars') {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(0, 168, 255, ${this.opacity})`;
+                        ctx.fill();
+                        
+                        for (let i = 0; i < 4; i++) {
+                            const angle = (i * Math.PI) / 2;
+                            const x1 = this.x + Math.cos(angle) * this.size;
+                            const y1 = this.y + Math.sin(angle) * this.size;
+                            const x2 = this.x + Math.cos(angle) * this.size * 3;
+                            const y2 = this.y + Math.sin(angle) * this.size * 3;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
+                            ctx.strokeStyle = `rgba(0, 168, 255, ${this.opacity * 0.5})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    ctx.restore();
+                }
+            }
+            
+            const snowParticles = [];
+            const rainParticles = [];
+            const starParticles = [];
+            
+            for (let i = 0; i < 100; i++) snowParticles.push(new Particle('snow'));
+            for (let i = 0; i < 80; i++) rainParticles.push(new Particle('rain'));
+            for (let i = 0; i < 50; i++) starParticles.push(new Particle('stars'));
+            
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (CONFIG.effects.snow) {
+                    snowParticles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+                }
+                
+                if (CONFIG.effects.rain) {
+                    rainParticles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+                }
+                
+                if (CONFIG.effects.stars) {
+                    starParticles.forEach(particle => {
+                        particle.update();
+                        particle.draw();
+                    });
+                }
+                
+                requestAnimationFrame(animateParticles);
+            }
+            
+            animateParticles();
+        }
+        
+     
+        function initMouseTrail() {
+            const canvas = document.getElementById('mouse-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            
+            const trail = [];
+            const maxTrail = 20;
+            
+            class TrailPoint {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = 10;
+                    this.life = 100;
+                }
+                
+                update() {
+                    this.size *= 0.9;
+                    this.life -= 2;
+                }
+                
+                draw() {
+                    const opacity = this.life / 100;
+                    ctx.beginPath();
+                    const gradient = ctx.createRadialGradient(
+                        this.x, this.y, 0,
+                        this.x, this.y, this.size
+                    );
+                    gradient.addColorStop(0, `rgba(0, 168, 255, ${opacity})`);
+                    gradient.addColorStop(1, 'rgba(0, 168, 255, 0)');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            document.addEventListener('mousemove', (e) => {
+                if (CONFIG.mouseEffects.trail) {
+                    trail.push(new TrailPoint(e.clientX, e.clientY));
+                    if (trail.length > maxTrail) {
+                        trail.shift();
+                    }
+                }
+            });
+            
+            function animateTrail() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (let i = 0; i < trail.length; i++) {
+                    trail[i].update();
+                    trail[i].draw();
+                    
+                    if (trail[i].life <= 0) {
+                        trail.splice(i, 1);
+                        i--;
+                    }
+                }
+                
+                requestAnimationFrame(animateTrail);
+            }
+            
+            animateTrail();
+        }
+        
+
+        function initMouseParticles() {
+            const canvas = document.getElementById('click-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            
+            const particles = [];
+            const maxParticles = 100;
+            
+            class MouseParticle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = Math.random() * 3 + 1;
+                    this.speedX = Math.random() * 3 - 1.5;
+                    this.speedY = Math.random() * 3 - 1.5;
+                    this.color = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`;
+                    this.life = 100;
+                }
+                
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.life--;
+                }
+                
+                draw() {
+                    ctx.globalAlpha = this.life / 100;
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            document.addEventListener('mousemove', (e) => {
+                if (CONFIG.mouseEffects.particles) {
+                    for (let i = 0; i < 2; i++) {
+                        particles.push(new MouseParticle(e.clientX, e.clientY));
+                    }
+                    if (particles.length > maxParticles) {
+                        particles.splice(0, particles.length - maxParticles);
+                    }
+                }
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (CONFIG.mouseEffects.click) {
+                    for (let i = 0; i < 10; i++) {
+                        particles.push(new MouseParticle(e.clientX, e.clientY));
+                    }
+                }
+            });
+            
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                    
+                    if (particles[i].life <= 0) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                }
+                
+                requestAnimationFrame(animateParticles);
+            }
+            
+            animateParticles();
+        }
+
+        function initCardFlip() {
+            const cards = document.querySelectorAll('.feature-card, .info-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'perspective(1000px) rotateY(5deg) rotateX(5deg)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateY(0) rotateX(0)';
+                });
+            });
+        }
+        
+
+        function initPageAnimations() {
+            const animatedElements = document.querySelectorAll('.slide-from-left, .slide-from-right, .scale-in, .float-up');
+            
+            animatedElements.forEach((el, index) => {
+                const delay = parseFloat(el.style.animationDelay || 0);
+                setTimeout(() => {
+                    el.style.animationPlayState = 'running';
+                }, delay * 1000);
+            });
+        }
+        
+
+        document.addEventListener('DOMContentLoaded', () => {
+     
+            setTimeout(() => {
+                const introOverlay = document.getElementById('introOverlay');
+                if (introOverlay) {
+                    introOverlay.style.display = 'none';
+                }
+            }, 4000);
+            
+       
+            const savedFont = localStorage.getItem('stormcloud-font');
+            if (savedFont) {
+                changeFont(savedFont);
+            }
+            
+ 
+            initCustomCursor();
+            initParticles();
+            initMouseTrail();
+            initMouseParticles();
+            initCardFlip();
+            initPageAnimations();
+ 
+            loadAnnouncement();
+            loadMessages();
+
+            setInterval(() => {
+                loadAnnouncement();
+                loadMessages();
+            }, 30000);
+  
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
